@@ -3,10 +3,12 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Login from "../../modules/auth/screens/Login";
 import CreateAccount from "../../modules/auth/screens/CreateAccount";
+import History from "../../modules/medicine/screens/MedicineHistory";
 import { Icon } from "@rneui/base";
 
+import RegisterMedicine from "../../modules/medicine/screens/RegisterMedicine";
 const Tab = createBottomTabNavigator();
-globalThis.isSessionActive = false;
+globalThis.isSessionActive = false; 
 function getTabBarIcon(route, active) {
     let iconName = '';
     switch (route.name) {
@@ -19,6 +21,12 @@ function getTabBarIcon(route, active) {
         case 'Perfil':
             iconName = active ? 'account' : 'account-outline';
             break;
+        case 'Registrar':
+            iconName = active ? 'medical-bag' : 'medical-bag';
+            break;
+        case 'Historial':
+            iconName = active ? 'history' : 'history';
+            break;   
         default:
             iconName = active ? 'help-circle' : 'help-circle-outline';
     }
@@ -79,12 +87,24 @@ export default function Navigation() {
                             options={{ title: 'Crear cuenta' }}
                         />
                     </>
-                ) : (
+                ) : (<>
                     <Tab.Screen
                         name="Perfil"
                         component={Login}
                         options={{ title: 'Perfil' }}
                     />
+
+                    <Tab.Screen
+                        name="Registrar"
+                        component={RegisterMedicine}
+                        options={{ title: 'Registrar' }}
+                        />
+<Tab.Screen 
+name="Historial"
+component={History}
+options={{title:'Historial'}}/>
+
+                        </>
                 )}
 
             </Tab.Navigator>
