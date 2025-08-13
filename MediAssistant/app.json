@@ -7,6 +7,24 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/img/logo.jpeg",
+          "color": "#3a8570",
+          "sounds": [
+            "default"
+          ]
+        }
+      ]
+    ],
+    "notification": {
+      "icon": "./assets/icon.png",
+      "color": "#3a8570",
+      "androidMode": "default",
+      "androidCollapsedTitle": "MediAssistant"
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
