@@ -1,7 +1,9 @@
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Image, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native'  // Importa Alert
 import React, { useState } from 'react'
-import { Input, Button, Icon} from '@rneui/base'
+import { Input, Button, Icon } from '@rneui/base'
 import logo from '../../../../assets/img/logo.jpeg'
+
+import api from '../../../config/api'
 
 export default function CreateAccount({ navigation }) {
     const [hidePassword, setHidePassword] = useState(true)
@@ -11,122 +13,185 @@ export default function CreateAccount({ navigation }) {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
 
-    const handleCreateAccount = () => {
-        // Your create account logic here
+    const clearInputs = () => {
+        setNombre('')
+        setUsuario('')
+        setPassword('')
+        setConfirmPassword('')
     }
 
-  return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.background}>
-            <View style={styles.container}>
-                <Image
-                    source={logo}
-                    style={styles.logo}
-                    resizeMode='contain'
-                />
-                <Text style={styles.title}>Crear cuenta</Text>
+    const handleCreateAccount = async () => {
+        try {
+            if (
+                nombre.trim() === '' ||
+                usuario.trim() === '' ||
+                password.trim() === '' ||
+                confirmPassword.trim() === ''
+            ) {
+                return Alert.alert(
+                    'Campos incompletos',
+                    'Por favor completa todos los campos para continuar.',
+                    [{ text: 'OK' }]
+                )
+            }
 
-                <View style={styles.formContainer}>
-                    <Input
-                        placeholder='Nombre'
-                        containerStyle={styles.input}
-                        leftIcon={
-                            <Icon
-                                name="account"
-                                type="material-community"
-                                color='#3a8570'
-                                size={24}
-                            />
-                        }
-                        inputStyle={styles.inputText}
-                        placeholderTextColor="#7e7e7e"
-                        onChange={(e) => setNombre(e.nativeEvent.text)}
-                    />
+            if (password !== confirmPassword) {
+                return Alert.alert(
+                    'Error',
+                    'Las contraseñas no coinciden.',
+                    [{ text: 'OK' }]
+                )
+            }
 
-                    <Input
-                        placeholder='Usuario'
-                        containerStyle={styles.input}
-                        leftIcon={
-                            <Icon
-                                name="account-outline"
-                                type="material-community"
-                                color='#3a8570'
-                                size={24}
-                            />
-                        }
-                        inputStyle={styles.inputText}
-                        placeholderTextColor="#7e7e7e"
-                        onChange={(e) => setUsuario(e.nativeEvent.text)}
-                    />
+            const response = await api.post('/usuarios/registrar', {
+                nombre: nombre,
+                usuario: usuario,
+                contrasena: password
+            })
 
-                    <Input
-                        placeholder='Contraseña'
-                        secureTextEntry={hidePassword}
-                        containerStyle={styles.input}
-                        leftIcon={
-                            <Icon
-                                name="lock-outline"
-                                type="material-community"
-                                color='#3a8570'
-                                size={24}
-                            />
+            Alert.alert(
+                'Cuenta creada exitosamente',
+                `Bienvenido/a, ${nombre}`,
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            clearInputs()
+                            navigation.navigate('Login')
                         }
-                        rightIcon={
-                            <Icon
-                                type='material-community'
-                                name={hidePassword ? 'eye-off-outline' : 'eye-outline'}
-                                color='#3a8570'
-                                onPress={() => setHidePassword(!hidePassword)}
-                                size={24}
-                            />
-                        }
-                        inputStyle={styles.inputText}
-                        placeholderTextColor="#7e7e7e"
-                        onChange={(e) => setPassword(e.nativeEvent.text)}
-                    />
+                    }
+                ]
+            )
 
-                    <Input
-                        placeholder='Confirmar contraseña'
-                        secureTextEntry={hideConfirmPassword}
-                        containerStyle={styles.input}
-                        leftIcon={
-                            <Icon
-                                name="lock-outline"
-                                type="material-community"
-                                color='#3a8570'
-                                size={24}
-                            />
-                        }
-                        rightIcon={
-                            <Icon
-                                type='material-community'
-                                name={hideConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                                color='#3a8570'
-                                onPress={() => setHideConfirmPassword(!hideConfirmPassword)}
-                                size={24}
-                            />
-                        }
-                        inputStyle={styles.inputText}
-                        placeholderTextColor="#7e7e7e"
-                        onChange={(e) => setConfirmPassword(e.nativeEvent.text)}
-                    />
+        } catch (error) {
+            console.error('Error al crear cuenta:', error)
+            Alert.alert(
+                'Error al crear cuenta',
+                'Por favor, intenta nuevamente más tarde.',
+                [{ text: 'OK' }]
+            )
+        }
+    }
 
-                    <Button
-                        title='Crear cuenta'
-                        containerStyle={styles.buttonContainer}
-                        buttonStyle={styles.buttonStyle}
-                        titleStyle={styles.buttonTitle}
-                        onPress={handleCreateAccount}
-                    />
+    return (
+        <KeyboardAvoidingView
+            style={{ flex: 1, backgroundColor: '#f5f5f5' }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                <View style={styles.background}>
+                    <View style={styles.container}>
+                        <Image
+                            source={logo}
+                            style={styles.logo}
+                            resizeMode='contain'
+                        />
+                        <Text style={styles.title}>Crear cuenta</Text>
 
-                   
+                        <View style={styles.formContainer}>
+                            <Input
+                                value={nombre}
+                                placeholder='Nombre'
+                                containerStyle={styles.input}
+                                leftIcon={
+                                    <Icon
+                                        name="account"
+                                        type="material-community"
+                                        color='#3a8570'
+                                        size={24}
+                                    />
+                                }
+                                inputStyle={styles.inputText}
+                                placeholderTextColor="#7e7e7e"
+                                onChange={(e) => setNombre(e.nativeEvent.text)}
+                            />
+
+                            <Input
+                                value={usuario}
+                                placeholder='Usuario'
+                                containerStyle={styles.input}
+                                leftIcon={
+                                    <Icon
+                                        name="account-outline"
+                                        type="material-community"
+                                        color='#3a8570'
+                                        size={24}
+                                    />
+                                }
+                                inputStyle={styles.inputText}
+                                placeholderTextColor="#7e7e7e"
+                                onChange={(e) => setUsuario(e.nativeEvent.text)}
+                            />
+
+                            <Input
+                                value={password}
+                                placeholder='Contraseña'
+                                secureTextEntry={hidePassword}
+                                containerStyle={styles.input}
+                                leftIcon={
+                                    <Icon
+                                        name="lock-outline"
+                                        type="material-community"
+                                        color='#3a8570'
+                                        size={24}
+                                    />
+                                }
+                                rightIcon={
+                                    <Icon
+                                        type='material-community'
+                                        name={hidePassword ? 'eye-off-outline' : 'eye-outline'}
+                                        color='#3a8570'
+                                        onPress={() => setHidePassword(!hidePassword)}
+                                        size={24}
+                                    />
+                                }
+                                inputStyle={styles.inputText}
+                                placeholderTextColor="#7e7e7e"
+                                onChange={(e) => setPassword(e.nativeEvent.text)}
+                            />
+
+                            <Input
+                                value={confirmPassword}
+                                placeholder='Confirmar contraseña'
+                                secureTextEntry={hideConfirmPassword}
+                                containerStyle={styles.input}
+                                leftIcon={
+                                    <Icon
+                                        name="lock-outline"
+                                        type="material-community"
+                                        color='#3a8570'
+                                        size={24}
+                                    />
+                                }
+                                rightIcon={
+                                    <Icon
+                                        type='material-community'
+                                        name={hideConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                                        color='#3a8570'
+                                        onPress={() => setHideConfirmPassword(!hideConfirmPassword)}
+                                        size={24}
+                                    />
+                                }
+                                inputStyle={styles.inputText}
+                                placeholderTextColor="#7e7e7e"
+                                onChange={(e) => setConfirmPassword(e.nativeEvent.text)}
+                            />
+
+                            <Button
+                                title='Crear cuenta'
+                                containerStyle={styles.buttonContainer}
+                                buttonStyle={styles.buttonStyle}
+                                titleStyle={styles.buttonTitle}
+                                onPress={handleCreateAccount}
+                            />
+                        </View>
+                    </View>
                 </View>
-            </View>
-        </View>
-        </ScrollView>
-  
+            </ScrollView>
+        </KeyboardAvoidingView>
     )
 }
+
 
 const styles = StyleSheet.create({
     scrollViewContent: {
@@ -155,13 +220,13 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#2a5440',
         marginBottom: 40,
-        letterSpacing: 0.2
+        letterSpacing: 0.2,
     },
     formContainer: {
         width: '100%',
         maxWidth: 400,
         alignItems: 'center',
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
     },
     input: {
         marginBottom: 24,
@@ -169,21 +234,21 @@ const styles = StyleSheet.create({
     inputText: {
         fontSize: 16,
         color: '#2a5440',
-        paddingVertical: 4
+        paddingVertical: 4,
     },
     buttonContainer: {
         width: '100%',
         marginTop: 16,
         borderRadius: 8,
-        overflow: 'hidden'
+        overflow: 'hidden',
     },
     buttonStyle: {
         backgroundColor: '#3a8570',
         paddingVertical: 14,
-        borderRadius: 8
+        borderRadius: 8,
     },
     buttonTitle: {
         fontSize: 18,
         fontWeight: '500',
-    }
-  })
+    },
+})

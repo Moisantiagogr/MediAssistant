@@ -1,14 +1,15 @@
-import React from "react";
+import React, {useState}from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Login from "../../modules/auth/screens/Login";
 import CreateAccount from "../../modules/auth/screens/CreateAccount";
 import History from "../../modules/medicine/screens/MedicineHistory";
 import { Icon } from "@rneui/base";
-
+import Profile  from "../../modules/user/Profile";
 import RegisterMedicine from "../../modules/medicine/screens/RegisterMedicine";
 const Tab = createBottomTabNavigator();
-globalThis.isSessionActive = false; 
+globalThis.isSessionActive = true; 
+
 function getTabBarIcon(route, active) {
     let iconName = '';
     switch (route.name) {
@@ -37,6 +38,15 @@ function getTabBarIcon(route, active) {
 }
 
 export default function Navigation() {
+    const [isSessionActive, setIsSessionActive] = useState(false);
+    globalThis.handleLogin = () => {
+        setIsSessionActive(true);
+    };
+
+    globalThis.handleLogout = () => {
+        setIsSessionActive(false);
+    };
+
     return (
         <NavigationContainer>
             <Tab.Navigator
@@ -50,7 +60,7 @@ export default function Navigation() {
                         elevation: 0,
                         height: 60,
                         paddingBottom: 10,
-                        position: 'absolute',
+                       
                         bottom: 25,
                         left: 20,
                         right: 20,
@@ -62,6 +72,7 @@ export default function Navigation() {
                         },
                         shadowOpacity: 0.25,
                         shadowRadius: 3.5,
+                       
                     },
                     tabBarLabelStyle: {
                         fontSize: 12,
@@ -74,7 +85,7 @@ export default function Navigation() {
                     }
                 })}
             >
-                {!global.isSessionActive ? (
+                {!isSessionActive ? (
                     <>
                         <Tab.Screen
                             name="Login"
@@ -90,7 +101,7 @@ export default function Navigation() {
                 ) : (<>
                     <Tab.Screen
                         name="Perfil"
-                        component={Login}
+                        component={Profile}
                         options={{ title: 'Perfil' }}
                     />
 
